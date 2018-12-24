@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define Size 5 //对Size进行宏定义，表示顺序表申请空间的大小
+typedef struct Table{
+    int * head;
+    int length;
+    int size;
+}table;
+
+//动态数组初始化 
+table initTable(){
+    table t;
+    t.head=(int*)malloc(Size*sizeof(int));//构造一个空的顺序表，动态申请存储空间
+    if (!t.head) //如果申请失败，作出提示并直接退出程序
+    {
+        printf("初始化失败");
+        exit(0);
+    }
+    t.length=0;//空表的长度初始化为0
+    t.size=Size;//空表的初始存储空间为Size
+    return t;
+}
+
+//插入函数，其中，elem为插入的元素，add为插入到顺序表的位置
+table AddTable(table t, int elem, int add)
+{
+	int i;
+	
+	//阈值处理
+	if(add > t.length + 1 || add < 1)
+	{
+		printf("插入位子有问题");
+		return t;
+	}
+
+	//做操作时，判断是否有足够的空间
+	if(t.length == t.size){
+		t.head = (int *)realloc(t.head , (t.size + 1)*sizeof(int));
+		if(!t.head){
+			printf("存储分配失败");
+			return t; 
+		}
+		t.size += 1;
+	}	
+	
+	//插入操作，需要将从插入位置开始的后续元素，逐个后移
+	for(i=t.length - 1;i>= add - 1; i--){
+		t.head[i+1] = t.head[i];
+	} 
+	
+	t.head[add-1] = elem;
+	t.length += 1;
+	return t;
+} 
+
+//删除动态数组数据
+table delTable(table t,int add){
+	int i;
+	
+	if(add > t.length || add < 1){
+		printf("数据位子有误");
+		return t;
+	}
+	
+	//删除操作
+	for (i = add; i< t.length; i++){
+		t.head[i-1] = t.head[i];
+	}
+	t.length --;
+	return t;
+} 
+
+//查找元素的位子 
+int selectTable(table t, int elem){
+	int i;
+	for(i = 0;i < t.length; i++){
+		if(t.head[i] == elem){
+			return i+1;
+		}
+	}
+	return -1;
+}
+//更改函数，其中，elem为要更改的元素，newElem为新的数据元素
+table amendTable(table t,int elem,int newElem){
+	int add;
+
+	add = selectTable(t, elem);
+	if( add != -1){
+		t.head[add-1] = newElem;
+	}
+	return t;
+}
+
+	
+//输出顺序表中元素的函数
+void displayTable(table t){
+	int i;
+    for (i=0;i<t.length;i++) {
+        printf("%d ",t.head[i]);
+    }
+    printf("\n");
+}
+
+int main(){
+    int i;
+	table t=initTable();
+    //向顺序表中添加元素
+    for (i=1; i<=Size; i++) {
+        t.head[i-1]=i;
+        t.length++;
+    }
+    printf("顺序表中存储的元素分别是：\n");
+    displayTable(t);
+    t = AddTable(t,1,2);
+    displayTable(t);
+	t = delTable(t,1);
+	displayTable(t);
+    
+    return 0;
+}
+
